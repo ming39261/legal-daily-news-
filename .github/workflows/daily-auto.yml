@@ -1,0 +1,86 @@
+name: 每日法律简报 - 完全自动化
+
+on:
+  # 每天北京时间早上8点运行（UTC 0点）
+  schedule:
+    - cron: '0 0 * * *'
+
+  # 允许手动触发
+  workflow_dispatch:
+
+  # 推送到main分支时也可触发（测试用）
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/daily-auto.yml'
+      - 'scripts/auto_collect.py'
+
+# 设置权限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  daily-briefing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 设置Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 markdown2
+
+      - name: 采集法律资讯
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+        run: |
+          echo "开始采集法律资讯..."
+          python scripts/auto_collect.py
+
+      - name: AI生成简报
+        env:
+          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+        run: |
+          echo "AI生成简报..."
+          python scripts/generate_brief.py
+
+      - name: 转换为HTML
+        run: |
+          echo "转换为HTML..."
+          chmod +x scripts/generate_html.py
+          TODAY=$(date +%Y-%m-%d)
+          python3 scripts/generate_html.py "output/archive/$TODAY.md" > "output/archive/$TODAY.html"
+          cp "output/archive/$TODAY.html" "./$TODAY.html"
+
+      - name: 提交到仓库
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          TODAY=$(date +%Y-%m-%d)
+          git add "$TODAY.html" "output/archive/$TODAY.md" "output/archive/$TODAY.html"
+
+          if git diff --staged --quiet; then
+            echo "没有新的变更"
+          else
+            git commit -m "Auto: $TODAY 法律简报 [skip ci]"
+            git push
+          fi
+
+      - name: 部署到GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
