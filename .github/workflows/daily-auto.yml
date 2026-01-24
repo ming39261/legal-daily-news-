@@ -13,7 +13,7 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/daily-auto.yml'
-      - 'scripts/generate_brief.py'
+      - 'scripts/generate_*.py'
 
 # 设置权限
 permissions:
@@ -58,13 +58,18 @@ jobs:
           python3 scripts/generate_html.py "output/archive/$TODAY.md" > "output/archive/$TODAY.html"
           cp "output/archive/$TODAY.html" "./$TODAY.html"
 
+      - name: 生成首页（自动更新归档列表）
+        run: |
+          echo "生成首页..."
+          python3 scripts/generate_index.py
+
       - name: 提交到仓库
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
           TODAY=$(date +%Y-%m-%d)
-          git add "$TODAY.html" "output/archive/$TODAY.md" "output/archive/$TODAY.html"
+          git add "$TODAY.html" "output/archive/$TODAY.md" "output/archive/$TODAY.html" "index.html"
 
           if git diff --staged --quiet; then
             echo "没有新的变更"
