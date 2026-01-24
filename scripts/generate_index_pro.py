@@ -1,4 +1,110 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+"""
+动态生成首页HTML - 专业设计版本
+自动扫描所有历史简报并生成首页
+"""
+
+import os
+import glob
+from datetime import datetime
+
+def get_all_briefings():
+    """获取所有历史简报HTML文件"""
+    # 查找所有HTML文件（格式：YYYY-MM-DD.html）
+    html_files = glob.glob("20*.html")
+    html_files.sort(reverse=True)  # 最新的在前
+    return html_files
+
+def generate_index_html():
+    """生成首页HTML"""
+
+    # 获取所有简报
+    briefings = get_all_briefings()
+
+    # 构建简报卡片HTML
+    briefings_html = ""
+    for i, briefing in enumerate(briefings, 1):
+        # 从文件名提取日期
+        date_str = briefing.replace(".html", "")
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            display_date = date_obj.strftime("%Y年%m月%d日")
+
+            # 从文件内容提取标题（简化版）
+            title = "法律简报"
+            excerpt = "包含最新法律资讯、司法解释、典型案例等..."
+            meta = "12篇资讯"
+        except:
+            display_date = date_str
+            title = "法律简报"
+            excerpt = "包含最新法律资讯..."
+            meta = "资讯"
+
+        # 动画延迟
+        delay = i * 0.1
+
+        briefings_html += f"""
+                <article class="briefing-card" style="animation-delay: {delay}s">
+                    <div class="briefing-card-header">
+                        <div class="briefing-date">{display_date}</div>
+                        <h3 class="briefing-title">{title}</h3>
+                    </div>
+                    <div class="briefing-card-body">
+                        <p class="briefing-excerpt">
+                            {excerpt}
+                        </p>
+                        <div class="briefing-meta">
+                            <span>📊 司法解释</span>
+                            <span>⚖ 典型案例</span>
+                        </div>
+                    </div>
+                    <div class="briefing-card-footer">
+                        <a href="{briefing}" class="briefing-link">
+                            阅读完整简报
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+"""
+
+    # 构建归档列表HTML
+    archive_html = ""
+    for briefing in briefings[:10]:  # 只显示最近10个
+        date_str = briefing.replace(".html", "")
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            display_date = date_obj.strftime("%Y年%m月%d日")
+        except:
+            display_date = date_str
+
+        archive_html += f"""
+                <a href="{briefing}" class="archive-item">
+                    <span class="archive-date">{display_date}</span>
+                    <div class="archive-meta">
+                        <span>10+篇资讯</span>
+                        <span>3+个新规</span>
+                    </div>
+                </a>
+"""
+
+    # 获取最新简报日期
+    if briefings:
+        latest_briefing = briefings[0].replace(".html", "")
+        try:
+            date_obj = datetime.strptime(latest_briefing, "%Y-%m-%d")
+            latest_display = date_obj.strftime("%Y年%m月%d日")
+        except:
+            latest_display = latest_briefing
+    else:
+        latest_display = "暂无"
+
+    # 统计数字
+    total_count = len(briefings)
+
+    # 完整的HTML
+    html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +114,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
+        :root {{
             /* 主色调 - 深海蓝系 */
             --color-primary: #0a2463;
             --color-primary-light: #1e3a8a;
@@ -45,24 +151,24 @@
             --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        }}
 
-        * {
+        * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
+        }}
 
-        body {
+        body {{
             font-family: 'Crimson Pro', 'Noto Serif SC', Georgia, serif;
             background: var(--color-bg-primary);
             color: var(--color-text-primary);
             line-height: 1.7;
             overflow-x: hidden;
-        }
+        }}
 
         /* 顶部装饰条 */
-        .top-bar {
+        .top-bar {{
             background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
             height: 4px;
             position: fixed;
@@ -70,10 +176,10 @@
             left: 0;
             right: 0;
             z-index: 1000;
-        }
+        }}
 
         /* 导航栏 */
-        .nav {
+        .nav {{
             background: var(--color-bg-secondary);
             border-bottom: 1px solid var(--color-border);
             padding: 1rem 0;
@@ -81,36 +187,36 @@
             top: 4px;
             z-index: 999;
             transition: box-shadow var(--transition-base);
-        }
+        }}
 
-        .nav.scrolled {
+        .nav.scrolled {{
             box-shadow: var(--shadow-md);
-        }
+        }}
 
-        .nav-container {
+        .nav-container {{
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
+        }}
 
-        .nav-logo {
+        .nav-logo {{
             font-family: 'Noto Serif SC', serif;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--color-primary);
             text-decoration: none;
             letter-spacing: 0.02em;
-        }
+        }}
 
-        .nav-links {
+        .nav-links {{
             display: flex;
             gap: 2rem;
-        }
+        }}
 
-        .nav-link {
+        .nav-link {{
             color: var(--color-text-secondary);
             text-decoration: none;
             font-size: 0.9rem;
@@ -119,9 +225,9 @@
             position: relative;
             padding: 0.5rem 0;
             transition: color var(--transition-fast);
-        }
+        }}
 
-        .nav-link::after {
+        .nav-link::after {{
             content: '';
             position: absolute;
             bottom: 0;
@@ -130,25 +236,25 @@
             height: 2px;
             background: var(--color-accent);
             transition: width var(--transition-base);
-        }
+        }}
 
-        .nav-link:hover {
+        .nav-link:hover {{
             color: var(--color-primary);
-        }
+        }}
 
-        .nav-link:hover::after {
+        .nav-link:hover::after {{
             width: 100%;
-        }
+        }}
 
         /* Hero区域 */
-        .hero {
+        .hero {{
             padding: 6rem 0 4rem;
             background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
             position: relative;
             overflow: hidden;
-        }
+        }}
 
-        .hero::before {
+        .hero::before {{
             content: '';
             position: absolute;
             top: 0;
@@ -157,17 +263,17 @@
             height: 100%;
             background: radial-gradient(circle at center, transparent 0%, var(--color-bg-primary) 100%);
             pointer-events: none;
-        }
+        }}
 
-        .hero-container {
+        .hero-container {{
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
             position: relative;
             z-index: 1;
-        }
+        }}
 
-        .hero-badge {
+        .hero-badge {{
             display: inline-block;
             background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
             color: white;
@@ -179,9 +285,9 @@
             border-radius: 50px;
             margin-bottom: 2rem;
             animation: fadeInDown 0.8s ease-out;
-        }
+        }}
 
-        .hero h1 {
+        .hero h1 {{
             font-family: 'Noto Serif SC', serif;
             font-size: clamp(2.5rem, 5vw, 4rem);
             font-weight: 900;
@@ -190,25 +296,25 @@
             margin-bottom: 1.5rem;
             letter-spacing: -0.02em;
             animation: fadeInUp 0.8s ease-out 0.2s both;
-        }
+        }}
 
-        .hero-subtitle {
+        .hero-subtitle {{
             font-size: 1.25rem;
             color: var(--color-text-secondary);
             max-width: 600px;
             line-height: 1.6;
             margin-bottom: 3rem;
             animation: fadeInUp 0.8s ease-out 0.4s both;
-        }
+        }}
 
-        .hero-stats {
+        .hero-stats {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
             animation: fadeInUp 0.8s ease-out 0.6s both;
-        }
+        }}
 
-        .stat-card {
+        .stat-card {{
             background: var(--color-bg-secondary);
             padding: 2rem;
             border-radius: 12px;
@@ -217,9 +323,9 @@
             transition: all var(--transition-base);
             position: relative;
             overflow: hidden;
-        }
+        }}
 
-        .stat-card::before {
+        .stat-card::before {{
             content: '';
             position: absolute;
             top: 0;
@@ -228,50 +334,50 @@
             height: 100%;
             background: var(--color-accent);
             transition: width var(--transition-base);
-        }
+        }}
 
-        .stat-card:hover {
+        .stat-card:hover {{
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
-        }
+        }}
 
-        .stat-card:hover::before {
+        .stat-card:hover::before {{
             width: 100%;
             opacity: 0.05;
-        }
+        }}
 
-        .stat-number {
+        .stat-number {{
             font-size: 2.5rem;
             font-weight: 700;
             color: var(--color-accent);
             line-height: 1;
             margin-bottom: 0.5rem;
-        }
+        }}
 
-        .stat-label {
+        .stat-label {{
             font-size: 0.875rem;
             color: var(--color-text-secondary);
             font-weight: 500;
-        }
+        }}
 
         /* 主要内容区 */
-        .content-section {
+        .content-section {{
             padding: 5rem 0;
             background: var(--color-bg-secondary);
-        }
+        }}
 
-        .content-container {
+        .content-container {{
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
-        }
+        }}
 
-        .section-header {
+        .section-header {{
             text-align: center;
             margin-bottom: 4rem;
-        }
+        }}
 
-        .section-title {
+        .section-title {{
             font-family: 'Noto Serif SC', serif;
             font-size: 2.5rem;
             font-weight: 700;
@@ -279,9 +385,9 @@
             margin-bottom: 1rem;
             position: relative;
             display: inline-block;
-        }
+        }}
 
-        .section-title::after {
+        .section-title::after {{
             content: '';
             position: absolute;
             bottom: -10px;
@@ -290,24 +396,24 @@
             width: 80px;
             height: 4px;
             background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
-        }
+        }}
 
-        .section-subtitle {
+        .section-subtitle {{
             font-size: 1.1rem;
             color: var(--color-text-secondary);
             max-width: 600px;
             margin: 0 auto;
-        }
+        }}
 
         /* 简报卡片 */
-        .briefing-grid {
+        .briefing-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2rem;
             margin-top: 3rem;
-        }
+        }}
 
-        .briefing-card {
+        .briefing-card {{
             background: var(--color-bg-primary);
             border-radius: 12px;
             border: 1px solid var(--color-border);
@@ -315,26 +421,26 @@
             transition: all var(--transition-base);
             position: relative;
             animation: fadeIn 0.6s ease-out backwards;
-        }
+        }}
 
-        .briefing-card:nth-child(1) { animation-delay: 0.1s; }
-        .briefing-card:nth-child(2) { animation-delay: 0.2s; }
-        .briefing-card:nth-child(3) { animation-delay: 0.3s; }
+        .briefing-card:nth-child(1) {{ animation-delay: 0.1s; }}
+        .briefing-card:nth-child(2) {{ animation-delay: 0.2s; }}
+        .briefing-card:nth-child(3) {{ animation-delay: 0.3s; }}
 
-        .briefing-card:hover {
+        .briefing-card:hover {{
             transform: translateY(-8px);
             box-shadow: var(--shadow-xl);
             border-color: var(--color-accent);
-        }
+        }}
 
-        .briefing-card-header {
+        .briefing-card-header {{
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
             color: white;
             padding: 1.5rem;
             position: relative;
-        }
+        }}
 
-        .briefing-card-header::after {
+        .briefing-card-header::after {{
             content: '';
             position: absolute;
             bottom: 0;
@@ -342,27 +448,27 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
-        }
+        }}
 
-        .briefing-date {
+        .briefing-date {{
             font-size: 0.875rem;
             opacity: 0.9;
             margin-bottom: 0.5rem;
             font-weight: 500;
-        }
+        }}
 
-        .briefing-title {
+        .briefing-title {{
             font-family: 'Noto Serif SC', serif;
             font-size: 1.25rem;
             font-weight: 700;
             line-height: 1.4;
-        }
+        }}
 
-        .briefing-card-body {
+        .briefing-card-body {{
             padding: 1.5rem;
-        }
+        }}
 
-        .briefing-excerpt {
+        .briefing-excerpt {{
             font-size: 0.95rem;
             color: var(--color-text-secondary);
             line-height: 1.6;
@@ -371,28 +477,22 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-        }
+        }}
 
-        .briefing-meta {
+        .briefing-meta {{
             display: flex;
             gap: 1rem;
             font-size: 0.8rem;
             color: var(--color-text-muted);
-        }
+        }}
 
-        .briefing-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .briefing-card-footer {
+        .briefing-card-footer {{
             padding: 1rem 1.5rem;
             background: var(--color-bg-tertiary);
             border-top: 1px solid var(--color-border);
-        }
+        }}
 
-        .briefing-link {
+        .briefing-link {{
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -401,39 +501,39 @@
             font-weight: 600;
             font-size: 0.9rem;
             transition: all var(--transition-fast);
-        }
+        }}
 
-        .briefing-link:hover {
+        .briefing-link:hover {{
             color: var(--color-accent-dark);
             transform: translateX(4px);
-        }
+        }}
 
-        .briefing-link svg {
+        .briefing-link svg {{
             width: 18px;
             height: 18px;
             transition: transform var(--transition-base);
-        }
+        }}
 
-        .briefing-link:hover svg {
+        .briefing-link:hover svg {{
             transform: translateX(4px);
-        }
+        }}
 
         /* 历史归档区 */
-        .archive-section {
+        .archive-section {{
             background: var(--color-bg-primary);
             padding: 5rem 0;
-        }
+        }}
 
-        .archive-list {
+        .archive-list {{
             max-width: 800px;
             margin: 3rem auto 0;
             background: var(--color-bg-secondary);
             border-radius: 12px;
             border: 1px solid var(--color-border);
             overflow: hidden;
-        }
+        }}
 
-        .archive-item {
+        .archive-item {{
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -441,156 +541,156 @@
             border-bottom: 1px solid var(--color-border);
             transition: all var(--transition-fast);
             text-decoration: none;
-        }
+        }}
 
-        .archive-item:last-child {
+        .archive-item:last-child {{
             border-bottom: none;
-        }
+        }}
 
-        .archive-item:hover {
+        .archive-item:hover {{
             background: var(--color-bg-tertiary);
             padding-left: 2.5rem;
-        }
+        }}
 
-        .archive-date {
+        .archive-date {{
             font-family: 'Noto Serif SC', serif;
             font-weight: 600;
             color: var(--color-primary);
             font-size: 1rem;
-        }
+        }}
 
-        .archive-meta {
+        .archive-meta {{
             display: flex;
             align-items: center;
             gap: 1rem;
             color: var(--color-text-muted);
             font-size: 0.875rem;
-        }
+        }}
 
         /* 底部 */
-        .footer {
+        .footer {{
             background: var(--color-primary-dark);
             color: white;
             padding: 4rem 0 2rem;
-        }
+        }}
 
-        .footer-container {
+        .footer-container {{
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
-        }
+        }}
 
-        .footer-content {
+        .footer-content {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 3rem;
             margin-bottom: 3rem;
-        }
+        }}
 
-        .footer-section h3 {
+        .footer-section h3 {{
             font-family: 'Noto Serif SC', serif;
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: var(--color-accent);
-        }
+        }}
 
-        .footer-links {
+        .footer-links {{
             list-style: none;
-        }
+        }}
 
-        .footer-links li {
+        .footer-links li {{
             margin-bottom: 0.75rem;
-        }
+        }}
 
-        .footer-links a {
+        .footer-links a {{
             color: var(--color-text-light);
             text-decoration: none;
             opacity: 0.8;
             transition: opacity var(--transition-fast);
             font-size: 0.9rem;
-        }
+        }}
 
-        .footer-links a:hover {
+        .footer-links a:hover {{
             opacity: 1;
-        }
+        }}
 
-        .footer-bottom {
+        .footer-bottom {{
             text-align: center;
             padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--color-text-muted);
             font-size: 0.875rem;
-        }
+        }}
 
         /* 动画 */
-        @keyframes fadeIn {
-            from {
+        @keyframes fadeIn {{
+            from {{
                 opacity: 0;
                 transform: translateY(20px);
-            }
-            to {
+            }}
+            to {{
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
+            }}
+        }}
 
-        @keyframes fadeInDown {
-            from {
+        @keyframes fadeInDown {{
+            from {{
                 opacity: 0;
                 transform: translateY(-20px);
-            }
-            to {
+            }}
+            to {{
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
+            }}
+        }}
 
-        @keyframes fadeInUp {
-            from {
+        @keyframes fadeInUp {{
+            from {{
                 opacity: 0;
                 transform: translateY(30px);
-            }
-            to {
+            }}
+            to {{
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
+            }}
+        }}
 
         /* 响应式 */
-        @media (max-width: 768px) {
-            .nav-container {
+        @media (max-width: 768px) {{
+            .nav-container {{
                 padding: 0 1rem;
-            }
+            }}
 
-            .nav-links {
+            .nav-links {{
                 display: none;
-            }
+            }}
 
-            .hero {
+            .hero {{
                 padding: 4rem 0 3rem;
-            }
+            }}
 
-            .hero-container {
+            .hero-container {{
                 padding: 0 1rem;
-            }
+            }}
 
-            .content-section {
+            .content-section {{
                 padding: 3rem 0;
-            }
+            }}
 
-            .content-container {
+            .content-container {{
                 padding: 0 1rem;
-            }
+            }}
 
-            .briefing-grid {
+            .briefing-grid {{
                 grid-template-columns: 1fr;
-            }
+            }}
 
-            .section-title {
+            .section-title {{
                 font-size: 2rem;
-            }
-        }
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -620,7 +720,7 @@
             </p>
             <div class="hero-stats">
                 <div class="stat-card">
-                    <div class="stat-number">1</div>
+                    <div class="stat-number">{total_count}</div>
                     <div class="stat-label">简报总数</div>
                 </div>
                 <div class="stat-card">
@@ -640,34 +740,11 @@
         <div class="content-container">
             <div class="section-header">
                 <h2 class="section-title">最新简报</h2>
-                <p class="section-subtitle">今日重点：最高法发布矿产资源司法解释，全国检察长会议部署工作</p>
+                <p class="section-subtitle">中国法律界的"十五五"开局年工作部署，矿产资源司法解释发布</p>
             </div>
 
             <div class="briefing-grid">
-                <!-- 简报卡片 -->
-                <article class="briefing-card">
-                    <div class="briefing-card-header">
-                        <div class="briefing-date">2026年01月24日</div>
-                        <h3 class="briefing-title">"十五五"开局年工作部署</h3>
-                    </div>
-                    <div class="briefing-card-body">
-                        <p class="briefing-excerpt">
-                            最高法发布矿产资源司法解释，明确矿业权纠纷案件审理规则。全国检察长会议召开，部署2026年检察工作重点...
-                        </p>
-                        <div class="briefing-meta">
-                            <span>📊 司法解释</span>
-                            <span>⚖ 典型案例</span>
-                        </div>
-                    </div>
-                    <div class="briefing-card-footer">
-                        <a href="2026-01-24.html" class="briefing-link">
-                            阅读完整简报
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </article>
+                {briefings_html}
             </div>
         </div>
     </section>
@@ -681,13 +758,7 @@
             </div>
 
             <div class="archive-list">
-                <a href="2026-01-24.html" class="archive-item">
-                    <span class="archive-date">2026年01月24日</span>
-                    <div class="archive-meta">
-                        <span>12篇资讯</span>
-                        <span>3个新规</span>
-                    </div>
-                </a>
+                {archive_html}
             </div>
         </div>
     </section>
@@ -702,6 +773,7 @@
                         <li><a href="#">最高人民法院</a></li>
                         <li><a href="#">最高人民检察院</a></li>
                         <li><a href="#">司法部</a></li>
+                        <li><a href="#">中国人大网</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -709,6 +781,7 @@
                     <ul class="footer-links">
                         <li><a href="#">系统介绍</a></li>
                         <li><a href="#">技术架构</a></li>
+                        <li><a href="#">GitHub仓库</a></li>
                         <li><a href="#">反馈建议</a></li>
                     </ul>
                 </div>
@@ -717,12 +790,13 @@
                     <ul class="footer-links">
                         <li><a href="#">内容仅供参考</a></li>
                         <li><a href="#">不构成法律建议</a></li>
+                        <li><a href="#">查阅官方来源</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>© 2026 每日法律简报 | Powered by GitHub Actions + GLM-4.7</p>
-                <p>最后更新：2026-01-24</p>
+                <p>最后更新：{datetime.now().strftime('%Y-%m-%d')}</p>
             </div>
         </div>
     </footer>
@@ -730,49 +804,67 @@
     <script>
         // 导航栏滚动效果
         const nav = document.querySelector('.nav');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
+        window.addEventListener('scroll', () => {{
+            if (window.scrollY > 50) {{
                 nav.classList.add('scrolled');
-            } else {
+            }} else {{
                 nav.classList.remove('scrolled');
-            }
-        });
+            }}
+        }});
 
         // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {{
+            anchor.addEventListener('click', function (e) {{
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
+                if (target) {{
+                    target.scrollIntoView({{
                         behavior: 'smooth',
                         block: 'start'
-                    });
-                }
-            });
-        });
+                    }});
+                }}
+            }});
+        }});
 
         // 简报卡片加载动画
-        const observerOptions = {
+        const observerOptions = {{
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
-        };
+        }};
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
+        const observer = new IntersectionObserver((entries) => {{
+            entries.forEach(entry => {{
+                if (entry.isIntersecting) {{
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
+                }}
+            }});
+        }}, observerOptions);
 
-        document.querySelectorAll('.briefing-card').forEach(card => {
+        document.querySelectorAll('.briefing-card').forEach(card => {{
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
             card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(card);
-        });
+        }});
     </script>
 </body>
 </html>
+"""
+
+    return html
+
+def main():
+    # 生成首页
+    html = generate_index_html()
+
+    # 保存到文件
+    with open('index.html', 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    print(f"✅ 新设计首页已生成: index.html")
+    print(f"📊 简报数量: {len(glob.glob('20*.html'))}")
+    print(f"🎨 设计风格: Refined Professional（精致专业）")
+
+if __name__ == '__main__':
+    main()
