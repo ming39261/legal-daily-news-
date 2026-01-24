@@ -13,7 +13,7 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/daily-auto.yml'
-      - 'scripts/auto_collect.py'
+      - 'scripts/generate_brief.py'
 
 # 设置权限
 permissions:
@@ -41,16 +41,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 markdown2
 
-      - name: 采集法律资讯
-        env:
-          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      - name: 配置GLM API
         run: |
-          echo "开始采集法律资讯..."
-          python scripts/auto_collect.py
+          echo "GLM_API_KEY=e96fd3e53ceb4ec3ac3c83053bbdf900.uTaVfpKoG49JeptV" >> $GITHUB_ENV
 
-      - name: AI生成简报
-        env:
-          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+      - name: 生成简报
         run: |
           echo "AI生成简报..."
           python scripts/generate_brief.py
