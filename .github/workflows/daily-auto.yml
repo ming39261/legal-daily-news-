@@ -43,7 +43,7 @@ jobs:
 
       - name: 配置GLM API
         run: |
-          echo "GLM_API_KEY=e96fd3e53ceb4ec3ac3c83053bbdf900.uTaVfpKoG49JeptV" >> $GITHUB_ENV
+          echo "GLM_API_KEY=${{ secrets.GLM_API_KEY }}" >> $GITHUB_ENV
 
       - name: 生成简报
         run: |
