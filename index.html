@@ -3,8 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日法律简报</title>
+    <title>每日法律简报 | 中国法律资讯聚合平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* 主色调 - 深海蓝系 */
+            --color-primary: #0a2463;
+            --color-primary-light: #1e3a8a;
+            --color-primary-dark: #071b3f;
+
+            /* 强调色 - 金色系 */
+            --color-accent: #c9a227;
+            --color-accent-light: #d4af37;
+            --color-accent-dark: #b8860b;
+
+            /* 背景色 */
+            --color-bg-primary: #fafbfc;
+            --color-bg-secondary: #ffffff;
+            --color-bg-tertiary: #f8f9fa;
+            --color-bg-dark: #0a2463;
+
+            /* 文本色 */
+            --color-text-primary: #0a2463;
+            --color-text-secondary: #475569;
+            --color-text-muted: #94a3b8;
+            --color-text-light: #fafbfc;
+
+            /* 边框和分割线 */
+            --color-border: #e2e8f0;
+            --color-border-light: #f1f5f9;
+
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px 0 rgba(10, 36, 99, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(10, 36, 99, 0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(10, 36, 99, 0.1);
+            --shadow-xl: 0 20px 40px -3px rgba(10, 36, 99, 0.15);
+
+            /* 过渡 */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,270 +54,757 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Crimson Pro', 'Noto Serif SC', Georgia, serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 900px;
+        /* 顶部装饰条 */
+        .top-bar {
+            background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+            height: 4px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        /* 导航栏 */
+        .nav {
+            background: var(--color-bg-secondary);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 4px;
+            z-index: 999;
+            transition: box-shadow var(--transition-base);
+        }
+
+        .nav.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: color var(--transition-fast);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--color-accent);
+            transition: width var(--transition-base);
+        }
+
+        .nav-link:hover {
+            color: var(--color-primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero区域 */
+        .hero {
+            padding: 6rem 0 4rem;
+            background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+            position: relative;
             overflow: hidden;
         }
 
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, var(--color-bg-primary) 100%);
+            pointer-events: none;
         }
 
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 50px;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .hero h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            color: var(--color-primary);
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .stat-card {
+            background: var(--color-bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--color-accent);
+            transition: width var(--transition-base);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card:hover::before {
+            width: 100%;
+            opacity: 0.05;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
             font-weight: 700;
+            color: var(--color-accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
         }
 
-        header .subtitle {
-            font-size: 1.1em;
-            opacity: 0.95;
-            font-weight: 300;
-        }
-
-        .content {
-            padding: 40px 30px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h2 {
-            color: #667eea;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .section h3 {
-            color: #555;
-            font-size: 1.3em;
-            margin-top: 25px;
-            margin-bottom: 15px;
-        }
-
-        .news-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
-        }
-
-        .news-item h4 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .news-item p {
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .news-item .meta {
-            font-size: 0.9em;
-            color: #888;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-right: 8px;
-        }
-
-        a {
-            color: #667eea;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        a:hover {
-            color: #764ba2;
-            text-decoration: underline;
-        }
-
-        .btn {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
-            margin-top: 10px;
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
             font-weight: 500;
         }
 
-        .btn:hover {
-            background: #764ba2;
-            text-decoration: none;
+        /* 主要内容区 */
+        .content-section {
+            padding: 5rem 0;
+            background: var(--color-bg-secondary);
         }
 
-        footer {
-            background: #f8f9fa;
-            padding: 20px 30px;
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
             text-align: center;
-            color: #666;
-            font-size: 0.9em;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 简报卡片 */
+        .briefing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .briefing-card {
+            background: var(--color-bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            transition: all var(--transition-base);
+            position: relative;
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .briefing-card:nth-child(1) { animation-delay: 0.1s; }
+        .briefing-card:nth-child(2) { animation-delay: 0.2s; }
+        .briefing-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .briefing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--color-accent);
+        }
+
+        .briefing-card-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .briefing-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+        }
+
+        .briefing-date {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .briefing-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .briefing-card-body {
+            padding: 1.5rem;
+        }
+
+        .briefing-excerpt {
+            font-size: 0.95rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .briefing-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .briefing-card-footer {
+            padding: 1rem 1.5rem;
+            background: var(--color-bg-tertiary);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .briefing-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+        }
+
+        .briefing-link:hover {
+            color: var(--color-accent-dark);
+            transform: translateX(4px);
+        }
+
+        .briefing-link svg {
+            width: 18px;
+            height: 18px;
+            transition: transform var(--transition-base);
+        }
+
+        .briefing-link:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* 历史归档区 */
+        .archive-section {
+            background: var(--color-bg-primary);
+            padding: 5rem 0;
         }
 
         .archive-list {
-            list-style: none;
+            max-width: 800px;
+            margin: 3rem auto 0;
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            overflow: hidden;
         }
 
-        .archive-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
+        .archive-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--color-border);
+            transition: all var(--transition-fast);
+            text-decoration: none;
         }
 
-        .archive-list li:last-child {
+        .archive-item:last-child {
             border-bottom: none;
         }
 
+        .archive-item:hover {
+            background: var(--color-bg-tertiary);
+            padding-left: 2.5rem;
+        }
+
+        .archive-date {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 1rem;
+        }
+
+        .archive-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* 底部 */
+        .footer {
+            background: var(--color-primary-dark);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-section h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--color-text-light);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity var(--transition-fast);
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式 */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
+            .nav-container {
+                padding: 0 1rem;
             }
 
-            .content {
-                padding: 20px 15px;
+            .nav-links {
+                display: none;
             }
 
-            .section h2 {
-                font-size: 1.5em;
+            .hero {
+                padding: 4rem 0 3rem;
+            }
+
+            .hero-container {
+                padding: 0 1rem;
+            }
+
+            .content-section {
+                padding: 3rem 0;
+            }
+
+            .content-container {
+                padding: 0 1rem;
+            }
+
+            .briefing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>每日法律简报</h1>
-            <p class="subtitle">AI驱动的法律资讯聚合平台</p>
-        </header>
+    <!-- 顶部装饰条 -->
+    <div class="top-bar"></div>
 
-        <div class="content">
-            <!-- 关于部分 -->
-            <section class="section">
-                <h2>📌 关于</h2>
-                <p>本简报通过自动化系统每天采集中国法律相关资讯，利用智谱GLM-4.7 AI模型进行智能分析和内容生成，为法律从业者提供高效、专业、及时的信息获取渠道。</p>
-                <br>
-                <p><strong>特点：</strong></p>
-                <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li>✅ 每日自动更新（上午8:00）</li>
-                    <li>✅ AI智能筛选和分析</li>
-                    <li>✅ 覆盖官方、媒体、社区多源资讯</li>
-                    <li>✅ 专业摘要和趋势洞察</li>
-                    <li>✅ 历史归档和快速检索</li>
-                </ul>
-            </section>
-
-            <!-- 最新简报 -->
-            <section class="section">
-                <h2>📰 最新简报</h2>
-
-                <div class="news-item">
-                    <h4>2026年01月25日 法律简报</h4>
-                    <p><strong>发布时间：</strong>2026年01月25日</p>
-                    <p><strong>今日焦点：</strong>包含最新法律资讯、司法解释、典型案例等...</p>
-                    <p class="meta">
-                        <span class="tag">司法解释</span>
-                        <span class="tag">典型案例</span>
-                    </p>
-                    <a href="2026-01-25.html" class="btn">阅读完整简报 →</a>
-                </div>
-
-                <div class="news-item">
-                    <h4>2026年01月24日 法律简报</h4>
-                    <p><strong>发布时间：</strong>2026年01月24日</p>
-                    <p><strong>今日焦点：</strong>"十五五"开局之年工作部署。最高法发布矿产资源司法解释，最高检发布第六十批指导性案例，强化刑罚执行监督。</p>
-                    <p class="meta">
-                        <span class="tag">十五五规划</span>
-                        <span class="tag">矿产资源</span>
-                        <span class="tag">指导性案例</span>
-                    </p>
-                    <a href="2026-01-24.html" class="btn">阅读完整简报 →</a>
-                </div>
-            </section>
-
-            <!-- 历史归档 -->
-            <section class="section">
-                <h2>📚 历史归档</h2>
-                <ul class="archive-list">
-                    <li>
-                        <a href="2026-01-25.html">
-                            <strong>2026年01月25日</strong> - 每日法律简报
-                        </a>
-                    </li>
-                    <li>
-                        <a href="2026-01-24.html">
-                            <strong>2026年01月24日</strong> - "十五五"开局年工作部署，矿产资源司法解释发布
-                        </a>
-                    </li>
-                </ul>
-            </section>
-
-            <!-- 数据来源 -->
-            <section class="section">
-                <h2>📊 数据来源</h2>
-                <h3>官方渠道</h3>
-                <ul style="margin-left: 20px;">
-                    <li><strong>最高人民法院</strong> - 最新新闻、司法解释、典型案例</li>
-                    <li><strong>最高人民检察院</strong> - 检察要闻、指导性案例</li>
-                    <li><strong>司法部</strong> - 政策文件、法律法规</li>
-                    <li><strong>中国人大网</strong> - 最新法律条文、立法动态</li>
-                </ul>
-
-                <h3>法律媒体</h3>
-                <ul style="margin-left: 20px;">
-                    <li><strong>人民法院报</strong> - 审判动态、司法实践</li>
-                    <li><strong>检察日报</strong> - 检察工作、法律监督</li>
-                    <li><strong>法制日报</strong> - 法治新闻、政策解读</li>
-                </ul>
-            </section>
-
-            <!-- 免责声明 -->
-            <section class="section">
-                <h2>⚖️ 免责声明</h2>
-                <p>本简报所有内容由AI自动生成，仅供学习参考，不构成法律建议。所有内容均注明来源，建议读者查阅官方原始来源获取完整准确的信息。</p>
-                <p style="margin-top: 10px;">使用本简报所产生的一切后果由使用者自行承担。</p>
-            </section>
-
-            <!-- 技术栈 -->
-            <section class="section">
-                <h2>🔧 技术栈</h2>
-                <ul style="margin-left: 20px;">
-                    <li><strong>定时任务：</strong>Claude Agent Skills</li>
-                    <li><strong>AI引擎：</strong>智谱GLM-4.7</li>
-                    <li><strong>数据采集：</strong>Tavily Search、Web Reader、Puppeteer</li>
-                    <li><strong>内容生成：</strong>Markdown Template Engine</li>
-                </ul>
-            </section>
+    <!-- 导航栏 -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">⚖ 每日法律简报</a>
+            <div class="nav-links">
+                <a href="#latest" class="nav-link">最新简报</a>
+                <a href="#archive" class="nav-link">历史归档</a>
+                <a href="#about" class="nav-link">关于</a>
+            </div>
         </div>
+    </nav>
 
-        <footer>
-            <p>© 2026 每日法律简报 | Powered by Claude Agent + GLM-4.7</p>
-            <p style="margin-top: 8px; font-size: 0.85em;">最后更新: 2026-01-25</p>
-        </footer>
-    </div>
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-badge">AI驱动 · 每日更新</div>
+            <h1>中国法律资讯聚合平台</h1>
+            <p class="hero-subtitle">
+                为法律从业者打造的智能信息获取渠道<br>
+                每天采集最高人民法院、最高人民检察院等官方资讯，利用GLM-4.7 AI模型进行智能分析和内容生成
+            </p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">简报总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">每日</div>
+                    <div class="stat-label">更新频率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">官方渠道</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 最新简报 -->
+    <section class="content-section" id="latest">
+        <div class="content-container">
+            <div class="section-header">
+                <h2 class="section-title">最新简报</h2>
+                <p class="section-subtitle">中国法律界的"十五五"开局年工作部署，矿产资源司法解释发布</p>
+            </div>
+
+            <div class="briefing-grid">
+                
+                <article class="briefing-card" style="animation-delay: 0.1s">
+                    <div class="briefing-card-header">
+                        <div class="briefing-date">2026年01月25日</div>
+                        <h3 class="briefing-title">法律简报</h3>
+                    </div>
+                    <div class="briefing-card-body">
+                        <p class="briefing-excerpt">
+                            包含最新法律资讯、司法解释、典型案例等...
+                        </p>
+                        <div class="briefing-meta">
+                            <span>📊 司法解释</span>
+                            <span>⚖ 典型案例</span>
+                        </div>
+                    </div>
+                    <div class="briefing-card-footer">
+                        <a href="2026-01-25.html" class="briefing-link">
+                            阅读完整简报
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="briefing-card" style="animation-delay: 0.2s">
+                    <div class="briefing-card-header">
+                        <div class="briefing-date">2026年01月24日</div>
+                        <h3 class="briefing-title">法律简报</h3>
+                    </div>
+                    <div class="briefing-card-body">
+                        <p class="briefing-excerpt">
+                            包含最新法律资讯、司法解释、典型案例等...
+                        </p>
+                        <div class="briefing-meta">
+                            <span>📊 司法解释</span>
+                            <span>⚖ 典型案例</span>
+                        </div>
+                    </div>
+                    <div class="briefing-card-footer">
+                        <a href="2026-01-24.html" class="briefing-link">
+                            阅读完整简报
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 历史归档 -->
+    <section class="archive-section" id="archive">
+        <div class="content-container">
+            <div class="section-header">
+                <h2 class="section-title">📚 历史归档</h2>
+                <p class="section-subtitle">浏览所有历史简报，追踪法律动态</p>
+            </div>
+
+            <div class="archive-list">
+                
+                <a href="2026-01-25.html" class="archive-item">
+                    <span class="archive-date">2026年01月25日</span>
+                    <div class="archive-meta">
+                        <span>10+篇资讯</span>
+                        <span>3+个新规</span>
+                    </div>
+                </a>
+
+                <a href="2026-01-24.html" class="archive-item">
+                    <span class="archive-date">2026年01月24日</span>
+                    <div class="archive-meta">
+                        <span>10+篇资讯</span>
+                        <span>3+个新规</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer" id="about">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>数据来源</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">最高人民法院</a></li>
+                        <li><a href="#">最高人民检察院</a></li>
+                        <li><a href="#">司法部</a></li>
+                        <li><a href="#">中国人大网</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>关于</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">系统介绍</a></li>
+                        <li><a href="#">技术架构</a></li>
+                        <li><a href="#">GitHub仓库</a></li>
+                        <li><a href="#">反馈建议</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>免责声明</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">内容仅供参考</a></li>
+                        <li><a href="#">不构成法律建议</a></li>
+                        <li><a href="#">查阅官方来源</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 每日法律简报 | Powered by GitHub Actions + GLM-4.7</p>
+                <p>最后更新：2026-01-25</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动效果
+        const nav = document.querySelector('.nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 简报卡片加载动画
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.briefing-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
