@@ -50,18 +50,24 @@ jobs:
           echo "AI生成简报..."
           python scripts/generate_brief.py
 
-      - name: 转换为HTML
+      - name: 转换为HTML（紫色主题）
         run: |
-          echo "转换为HTML..."
-          chmod +x scripts/generate_html.py
+          echo "转换为HTML（紫色主题）..."
+          chmod +x scripts/md_to_purple_html.py
           TODAY=$(date +%Y-%m-%d)
-          python3 scripts/generate_html.py "output/archive/$TODAY.md" > "output/archive/$TODAY.html"
-          cp "output/archive/$TODAY.html" "./$TODAY.html"
+          python3 scripts/md_to_purple_html.py "output/archive/$TODAY.md" > "./$TODAY.html"
+          cp "$TODAY.html" "archive/$TODAY.html"
+          cp "$TODAY.html" "output/archive/$TODAY.html"
 
-      - name: 生成首页（自动更新归档列表 - 专业设计版）
+      - name: 生成首页（紫色主题）
         run: |
-          echo "生成首页..."
-          python3 scripts/generate_index_pro.py
+          echo "生成首页（紫色主题）..."
+          # 使用紫色主题模板，不使用专业设计版
+          if [ -f "scripts/generate_index_purple.py" ]; then
+            python3 scripts/generate_index_purple.py
+          else
+            echo "使用现有紫色主题index.html"
+          fi
 
       - name: 提交到仓库
         run: |
@@ -69,7 +75,8 @@ jobs:
           git config --local user.name "GitHub Action"
 
           TODAY=$(date +%Y-%m-%d)
-          git add "$TODAY.html" "output/archive/$TODAY.md" "output/archive/$TODAY.html" "index.html"
+          # 只提交今日简报，不更新index.html（保持紫色主题）
+          git add "$TODAY.html" "archive/$TODAY.html" "output/archive/$TODAY.md" "output/archive/$TODAY.html"
 
           if git diff --staged --quiet; then
             echo "没有新的变更"
