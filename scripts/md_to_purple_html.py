@@ -240,20 +240,49 @@ def md_to_purple_html(md_file, date_str, display_date):
     # 添加新闻项
     for source, content_block in news_items:
         # 提取标题和内容
-        title = source
         lines = content_block.strip().split('\n')
+        title = lines[0].strip() if lines else ""
 
         # 解析字段
-        data = {'source': source.split('】')[0] if '】' in source else source}
-        for line in lines:
+        data = {'source': source}
+        summary_lines = []
+        in_summary = False
+        impact_lines = []
+        in_impact = False
+
+        for line in lines[1:]:  # 跳过第一行标题
+            line = line.strip()
+            if not line:
+                continue
+
+            # 解析元数据字段
             if '- **来源**:' in line:
                 data['source'] = line.split('- **来源**:')[1].strip()
-            elif '- **时间**:' in line:
-                data['time'] = line.split('- **时间**:')[1].strip()
-            elif '- **摘要**:' in line:
-                data['summary'] = line.split('- **摘要**:')[1].strip()
-            elif '- **实务影响**:' in line:
-                data['impact'] = line.split('- **实务影响**:')[1].strip()
+            elif '- **发布时间**:' in line or '- **会议时间**:' in line or '- **时间**:' in line:
+                data['time'] = line.split(':**')[1].strip() if ':**' in line else line.split(':')[1].strip()
+            elif '- **链接**:' in line:
+                data['link'] = line.split('- **链接**:')[1].strip()
+            elif line.startswith('**摘要**:') or line.startswith('**摘要**：'):
+                in_summary = True
+                continue
+            elif line.startswith('**实务影响**:') or line.startswith('**实务影响**：'):
+                in_impact = True
+                in_summary = False
+                continue
+            elif line.startswith('---'):
+                in_summary = False
+                in_impact = False
+
+            # 收集摘要和实务影响内容
+            if in_summary and not line.startswith('**'):
+                summary_lines.append(line)
+            elif in_impact and not line.startswith('**'):
+                impact_lines.append(line)
+
+        if summary_lines:
+            data['summary'] = ' '.join(summary_lines).strip()
+        if impact_lines:
+            data['impact'] = ' '.join(impact_lines).strip()
 
         html += f"""
                 <div class="news-item">
