@@ -529,8 +529,8 @@ def md_to_purple_html(md_file, date_str, display_date):
                 title = lines[0].strip().rstrip('*').strip()
                 html += f'                <h3>{title}</h3>\n'
 
-                # 查找news-item
-                items = re.split(r'\n\n\*\*(.+?)\*\*', subsection)
+                # 查找news-item - 支持单换行和双换行
+                items = re.split(r'\n\*\*(.+?)\*\*:', subsection)
                 current_item = None
 
                 for i, part in enumerate(items):
@@ -538,28 +538,49 @@ def md_to_purple_html(md_file, date_str, display_date):
                         continue  # 跳过标题后的内容
 
                     if i % 2 == 1:  # 这是标题
-                        current_item = {'title': part.strip()}
+                        current_item = {'title': part.strip(), 'content': ''}
                     elif i % 2 == 0 and current_item:  # 这是内容
-                        current_item['content'] = part.strip()
+                        # 找到下一个标题的开始位置
+                        next_title_match = re.search(r'\n\*\*(.+?)\*\*:', part)
+                        if next_title_match:
+                            current_item['content'] = part[:next_title_match.start()].strip()
+                        else:
+                            current_item['content'] = part.strip()
+
                         html += """                <div class="news-item">
                     <h4>{title}</h4>
-                    <ul>
 """.format(title=current_item['title'])
 
-                        # 解析列表项
-                        list_items = re.findall(r'[\s-]*\*\*(.+?)\*\*:?\s*(.+)', current_item['content'])
-                        if not list_items:
-                            # 尝试另一种格式
-                            list_items = re.findall(r'[\s-]*\*\*(.+?)\*\*', current_item['content'])
+                        # 解析列表项和段落
+                        lines = current_item['content'].split('\n')
+                        in_list = False
+                        for line in lines:
+                            line = line.strip()
+                            if not line:
+                                continue
 
-                        for item in list_items:
-                            if len(item) == 2:
-                                label, content = item
-                                html += f"                        <li><strong>{label}：</strong>{content}</li>\n"
-                            elif len(item) == 1:
-                                html += f"                        <li>{item[0]}</li>\n"
+                            # 检查是否是列表项
+                            if line.startswith('-'):
+                                if not in_list:
+                                    html += '                    <ul>\n'
+                                    in_list = True
+                                # 移除开头的"- "和粗体标记
+                                content = re.sub(r'^-\s+\*\*(.+?)\*\*:\s*', r'\1：', line)
+                                content = re.sub(r'^-\s+', '', content)
+                                content = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', content)
+                                html += f"                        <li>{content}</li>\n"
+                            else:
+                                if in_list:
+                                    html += '                    </ul>\n'
+                                    in_list = False
+                                # 处理普通段落
+                                content = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', line)
+                                html += f"                    <p>{content}</p>\n"
 
-                        html += "                    </ul>\n                </div>\n\n"
+                        if in_list:
+                            html += '                    </ul>\n'
+
+                        html += "                </div>\n\n"
                         current_item = None
 
         elif section_name == '4. 趋势洞察':
