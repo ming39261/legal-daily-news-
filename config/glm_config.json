@@ -1,0 +1,19 @@
+{
+  "api_key": "e96fd3e53ceb4ec3ac3c83053bbdf900.uTaVfpKoG49JeptV",
+  "api_base": "https://open.bigmodel.cn/api/paas/v4/",
+  "model": "glm-4.7",
+  "parameters": {
+    "temperature": 0.3,
+    "max_tokens": 4096,
+    "top_p": 0.9
+  },
+  "retry": {
+    "max_attempts": 3,
+    "timeout": 30,
+    "backoff_factor": 2
+  },
+  "cost_control": {
+    "max_daily_tokens": 100000,
+    "batch_size": 15
+  }
+}
