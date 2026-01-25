@@ -1,54 +1,76 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+"""
+将Markdown内容转换为紫色主题HTML
+"""
+
+import sys
+import re
+
+def md_to_purple_html(md_file, date_str, display_date):
+    """读取Markdown并转换为紫色主题HTML"""
+
+    with open(md_file, 'r', encoding='utf-8') as f:
+        md_content = f.read()
+
+    # 提取导语
+    intro_match = re.search(r'\*\*导语：\*\*(.+?)(?=\n---|\n##)', md_content, re.DOTALL)
+    intro = intro_match.group(1).strip() if intro_match else "今日法律界最新资讯更新。"
+
+    # 提取新闻项
+    news_items = re.findall(r'### 【(.+?)】(.+?)(?=###|\*本简报)', md_content, re.DOTALL)
+
+    # 构建HTML
+    html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026年01年25日 法律简报</title>
+    <title>{display_date} 法律简报</title>
     <style>
-        * {
+        * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
+        }}
 
-        body {
+        body {{
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
             line-height: 1.8;
             color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-        }
+        }}
 
-        .container {
+        .container {{
             max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-        }
+        }}
 
-        header {
+        header {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
             text-align: center;
-        }
+        }}
 
-        header h1 {
+        header h1 {{
             font-size: 2.2em;
             margin-bottom: 15px;
             font-weight: 700;
-        }
+        }}
 
-        header .date {
+        header .date {{
             font-size: 1.1em;
             opacity: 0.95;
             font-weight: 300;
-        }
+        }}
 
-        header .intro {
+        header .intro {{
             margin-top: 20px;
             font-size: 1.05em;
             line-height: 1.6;
@@ -57,56 +79,56 @@
             background: rgba(255,255,255,0.1);
             padding: 20px;
             border-radius: 8px;
-        }
+        }}
 
-        .content {
+        .content {{
             padding: 40px;
-        }
+        }}
 
-        .section {
+        .section {{
             margin-bottom: 50px;
-        }
+        }}
 
-        .section h2 {
+        .section h2 {{
             color: #667eea;
             font-size: 1.8em;
             margin-bottom: 25px;
             padding-bottom: 12px;
             border-bottom: 3px solid #667eea;
-        }
+        }}
 
-        .news-item {
+        .news-item {{
             background: #f8f9fa;
             padding: 25px;
             border-radius: 10px;
             margin-bottom: 20px;
             border-left: 5px solid #667eea;
             transition: all 0.3s;
-        }
+        }}
 
-        .news-item:hover {
+        .news-item:hover {{
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
             transform: translateY(-2px);
-        }
+        }}
 
-        .news-item h4 {
+        .news-item h4 {{
             color: #333;
             font-size: 1.2em;
             margin-bottom: 15px;
             font-weight: 600;
-        }
+        }}
 
-        .news-item p {
+        .news-item p {{
             color: #555;
             margin-bottom: 10px;
             line-height: 1.7;
-        }
+        }}
 
-        .news-item strong {
+        .news-item strong {{
             color: #667eea;
-        }
+        }}
 
-        .meta {
+        .meta {{
             background: white;
             padding: 12px 15px;
             border-radius: 6px;
@@ -116,26 +138,26 @@
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
-        }
+        }}
 
-        .meta span {
+        .meta span {{
             display: inline-flex;
             align-items: center;
-        }
+        }}
 
-        .impact {
+        .impact {{
             background: #fff3cd;
             border-left: 5px solid #ffc107;
             padding: 15px;
             margin-top: 15px;
             border-radius: 6px;
-        }
+        }}
 
-        .impact strong {
+        .impact strong {{
             color: #856404;
-        }
+        }}
 
-        .tag {
+        .tag {{
             display: inline-block;
             background: #667eea;
             color: white;
@@ -144,20 +166,20 @@
             font-size: 0.85em;
             margin-right: 8px;
             margin-bottom: 5px;
-        }
+        }}
 
-        a {
+        a {{
             color: #667eea;
             text-decoration: none;
             transition: color 0.3s;
-        }
+        }}
 
-        a:hover {
+        a:hover {{
             color: #764ba2;
             text-decoration: underline;
-        }
+        }}
 
-        .back-link {
+        .back-link {{
             display: inline-block;
             background: #667eea;
             color: white;
@@ -166,45 +188,45 @@
             margin-bottom: 20px;
             font-weight: 500;
             transition: all 0.3s;
-        }
+        }}
 
-        .back-link:hover {
+        .back-link:hover {{
             background: #764ba2;
             text-decoration: none;
             transform: translateY(-2px);
-        }
+        }}
 
-        footer {
+        footer {{
             background: #f8f9fa;
             padding: 30px 40px;
             text-align: center;
             color: #666;
             border-top: 1px solid #e9ecef;
-        }
+        }}
 
-        @media (max-width: 768px) {
-            header {
+        @media (max-width: 768px) {{
+            header {{
                 padding: 30px 20px;
-            }
-            header h1 {
+            }}
+            header h1 {{
                 font-size: 1.6em;
-            }
-            .content {
+            }}
+            .content {{
                 padding: 20px;
-            }
-            .section h2 {
+            }}
+            .section h2 {{
                 font-size: 1.4em;
-            }
-        }
+            }}
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>2026年01年25日 法律简报</h1>
-            <p class="date">发布时间：2026-01-25</p>
+            <h1>{display_date} 法律简报</h1>
+            <p class="date">发布时间：{date_str}</p>
             <div class="intro">
-                <strong>导语：</strong>今日法律界最新资讯更新。
+                <strong>导语：</strong>{intro}
             </div>
         </header>
 
@@ -213,42 +235,76 @@
 
             <section class="section">
                 <h2>1. 今日要闻</h2>
+"""
 
+    # 添加新闻项
+    for source, content_block in news_items:
+        # 提取标题和内容
+        title = source
+        lines = content_block.strip().split('\n')
+
+        # 解析字段
+        data = {'source': source.split('】')[0] if '】' in source else source}
+        for line in lines:
+            if '- **来源**:' in line:
+                data['source'] = line.split('- **来源**:')[1].strip()
+            elif '- **时间**:' in line:
+                data['time'] = line.split('- **时间**:')[1].strip()
+            elif '- **摘要**:' in line:
+                data['summary'] = line.split('- **摘要**:')[1].strip()
+            elif '- **实务影响**:' in line:
+                data['impact'] = line.split('- **实务影响**:')[1].strip()
+
+        html += f"""
                 <div class="news-item">
-                    <h4>【最高人民检察院】最高人民检察院</h4>
-                    <p><strong>时间：</strong>2026年01月25日</p>
-                    <p><strong>摘要：</strong>最高人民检察院决定在全国范围内开展食品安全专项检察监督活动，重点打击危害食品安全犯罪，完善食品安全领域检察公益诉讼制度。</p>
-                    <div class="impact">
-                        <strong>实务影响：</strong>守护"舌尖上的安全"，保障人民群众身体健康。
-                    </div>
-                </div>
+                    <h4>【{data['source']}】{title}</h4>
+"""
 
-                <div class="news-item">
-                    <h4>【司法部】司法部</h4>
-                    <p><strong>时间：</strong>2026年01月25日</p>
-                    <p><strong>摘要：</strong>司法部发布实施意见，进一步扩大法律援助覆盖面，提高法律援助质量。重点加强农民工、未成年人、残疾人等特殊群体的法律援助工作。</p>
-                    <div class="impact">
-                        <strong>实务影响：</strong>切实保障困难群众获得法律援助的权利，促进社会公平正义。
-                    </div>
-                </div>
+        if 'time' in data:
+            html += f"                    <p><strong>时间：</strong>{data['time']}</p>\n"
 
-                <div class="news-item">
-                    <h4>【最高人民法院】最高人民法院</h4>
-                    <p><strong>时间：</strong>2026年01月25日</p>
-                    <p><strong>摘要：</strong>最高人民法院发布一批服务保障自由贸易试验区建设的典型案例，涵盖外商投资、国际贸易、金融创新等领域，为自贸试验区高质量发展提供司法保障。</p>
-                    <div class="impact">
-                        <strong>实务影响：</strong>为自贸试验区建设提供清晰的司法指引，优化营商环境。
-                    </div>
-                </div>
+        if 'summary' in data:
+            html += f"                    <p><strong>摘要：</strong>{data['summary']}</p>\n"
 
+        if 'impact' in data:
+            html += f"""                    <div class="impact">
+                        <strong>实务影响：</strong>{data['impact']}
+                    </div>
+"""
+
+        html += "                </div>\n"
+
+    # HTML结尾
+    html += f"""
             </section>
         </div>
 
         <footer>
             <p>本简报由GLM-4.7 AI自动生成，仅供学习参考，不构成法律建议</p>
-            <p style="margin-top: 10px;">© 2026 每日法律简报 | 生成时间: 2026-01-25</p>
+            <p style="margin-top: 10px;">© 2026 每日法律简报 | 生成时间: {date_str}</p>
         </footer>
     </div>
 </body>
 </html>
+"""
 
+    return html
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python3 md_to_purple_html.py <md_file>")
+        sys.exit(1)
+
+    md_file = sys.argv[1]
+    date_match = re.search(r'(\d{4}-\d{2}-\d{2})', md_file)
+
+    if date_match:
+        date_str = date_match.group(1)
+        display_date = date_str.replace('-', '年') + '日'
+    else:
+        from datetime import datetime
+        date_str = datetime.now().strftime('%Y-%m-%d')
+        display_date = datetime.now().strftime('%Y年%m月%d日')
+
+    html = md_to_purple_html(md_file, date_str, display_date)
+    print(html)
