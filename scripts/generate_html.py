@@ -444,7 +444,12 @@ def markdown_to_html(md_content, filepath):
             if not in_list:
                 html_content.append('<ul>')
                 in_list = True
-            html_content.append(f'<li>{line[2:]}</li>')
+            # 处理列表项中的链接 [text](url)
+            line_content = line[2:]
+            line_content = re.sub(r'\[([^\]]+)\]\(([^\)]+)\)', r'<a href="\2" target="_blank">\1</a>', line_content)
+            # 处理加粗 **text**
+            line_content = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', line_content)
+            html_content.append(f'<li>{line_content}</li>')
 
         # 链接 [text](url)
         elif '](' in line and not line.startswith('-'):

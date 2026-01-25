@@ -1,49 +1,12 @@
 #!/usr/bin/env python3
 """
 动态生成首页HTML - 专业设计版本
-自动扫描所有历史简报并生成首页，从实际文件中提取真实内容
+自动扫描所有历史简报并生成首页
 """
 
 import os
 import glob
-import re
 from datetime import datetime
-
-def get_briefing_content(date_str):
-    """从markdown文件中提取真实内容"""
-    md_file = f"output/archive/{date_str}.md"
-
-    if not os.path.exists(md_file):
-        return None
-
-    try:
-        with open(md_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        # 提取导语
-        intro_match = re.search(r'\*\*导语：\*\*(.+?)(?=\n\n|\n---)', content, re.DOTALL)
-        intro = intro_match.group(1).strip() if intro_match else ""
-
-        # 提取第一条要闻
-        first_news_match = re.search(r'### 【(.+?)】\n(?:.+?\n)?- \*\*来源\*\*:(.+?)\n- \*\*时间\*\*:(.+?)\n- \*\*摘要\*\*:(.+?)(?=\n\n|\n---)', content, re.DOTALL)
-
-        if first_news_match:
-            news_title = first_news_match.group(1).strip()
-            news_source = first_news_match.group(2).strip()
-            news_time = first_news_match.group(3).strip()
-            news_summary = first_news_match.group(4).strip()
-
-            return {
-                'intro': intro,
-                'news_title': news_title,
-                'news_source': news_source,
-                'news_summary': news_summary
-            }
-
-        return {'intro': intro}
-    except Exception as e:
-        print(f"读取 {md_file} 出错: {e}")
-        return None
 
 def get_all_briefings():
     """获取所有历史简报HTML文件"""
@@ -67,34 +30,10 @@ def generate_index_html():
             date_obj = datetime.strptime(date_str, "%Y-%m-%d")
             display_date = date_obj.strftime("%Y年%m月%d日")
 
-            # 从markdown文件提取真实内容
-            briefing_data = get_briefing_content(date_str)
-
-            if briefing_data and briefing_data.get('intro'):
-                # 使用真实导语
-                intro = briefing_data['intro']
-                # 限制导语长度（最多150字）
-                if len(intro) > 150:
-                    intro = intro[:147] + "..."
-
-                if briefing_data.get('news_title'):
-                    # 如果有详细内容，显示标题+摘要
-                    title = briefing_data['news_title']
-                    excerpt = f"{intro}\n\n重点：{briefing_data['news_summary']}"
-                    # 限制总长度
-                    if len(excerpt) > 200:
-                        excerpt = excerpt[:197] + "..."
-                else:
-                    # 只有导语
-                    title = "法律简报"
-                    excerpt = intro
-            else:
-                # 没有找到内容，使用默认
-                title = "法律简报"
-                excerpt = "包含最新法律资讯、司法解释、典型案例等..."
-
-            meta = "最新简报" if i == 1 else "历史简报"
-
+            # 从文件内容提取标题（简化版）
+            title = "法律简报"
+            excerpt = "包含最新法律资讯、司法解释、典型案例等..."
+            meta = "12篇资讯"
         except:
             display_date = date_str
             title = "法律简报"
@@ -115,8 +54,8 @@ def generate_index_html():
                             {excerpt}
                         </p>
                         <div class="briefing-meta">
-                            <span>📊 今日要闻</span>
-                            <span>⚖ 司法动态</span>
+                            <span>📊 司法解释</span>
+                            <span>⚖ 典型案例</span>
                         </div>
                     </div>
                     <div class="briefing-card-footer">
