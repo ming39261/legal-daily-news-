@@ -78,6 +78,14 @@ else
     if [ $? -eq 0 ]; then
         echo "✅ 成功推送到GitHub" | tee -a "$LOG_FILE"
 
+        # 9. 同步到gh-pages分支（用于GitHub Pages部署）
+        echo "📄 正在同步到gh-pages分支..." | tee -a "$LOG_FILE"
+        git checkout gh-pages >> "$LOG_FILE" 2>&1
+        git merge main -X theirs --no-edit >> "$LOG_FILE" 2>&1
+        git push origin gh-pages >> "$LOG_FILE" 2>&1
+        git checkout main >> "$LOG_FILE" 2>&1
+        echo "✅ gh-pages分支已更新" | tee -a "$LOG_FILE"
+
         # 发送通知（可选）
         osascript -e 'display notification "每日法律简报" with title "✅ 生成成功"' 2>/dev/null
     else

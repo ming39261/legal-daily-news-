@@ -85,9 +85,12 @@ jobs:
             git push
           fi
 
-      - name: 部署到GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          publish_branch: gh-pages
+      # 注意：已禁用自动部署到gh-pages
+      # 理由：本地脚本auto_generate_and_push.sh会直接处理gh-pages分支更新
+      # 避免GitHub Actions覆盖本地生成的更详细内容
+      # - name: 部署到GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./
+      #     publish_branch: gh-pages
