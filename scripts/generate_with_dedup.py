@@ -17,8 +17,16 @@ from difflib import SequenceMatcher
 # 配置
 HISTORY_DIR = "output/archive"
 PREVIEW_DIR = "preview"
-TODAY = datetime.now().strftime("%Y-%m-%d")
-DISPLAY_DATE = datetime.now().strftime("%Y年%m月%d日")
+
+# 支持通过环境变量或命令行参数指定日期
+date_override = os.getenv('TODAY')
+if date_override:
+    target_date = datetime.strptime(date_override, "%Y-%m-%d")
+else:
+    target_date = datetime.now()
+
+TODAY = target_date.strftime("%Y-%m-%d")
+DISPLAY_DATE = target_date.strftime("%Y年%m月%d日")
 
 def get_history_briefings():
     """获取历史简报列表"""
@@ -129,6 +137,16 @@ def generate_brief_with_dedup():
     print("🤖 正在生成简报内容...")
     api_key = os.getenv('GLM_API_KEY')
 
+    # 如果环境变量未设置，尝试从配置文件读取
+    if not api_key:
+        try:
+            with open('config/glm_config.json', 'r') as f:
+                config = json.load(f)
+                api_key = config.get('api_key')
+                print("✅ 从配置文件读取API密钥")
+        except Exception as e:
+            print(f"⚠️  无法读取配置文件: {e}")
+
     if api_key:
         content = generate_with_api(api_key, history_briefings)
     else:
@@ -173,13 +191,20 @@ def generate_brief_with_dedup():
     print(content[:500] + "..." if len(content) > 500 else content)
     print("-" * 60)
 
-    # 6. 询问确认
-    print(f"\n❓ 是否确认发布到正式目录? ({HISTORY_DIR}/{TODAY}.md)")
-    print("   [y] 是，发布")
-    print("   [n] 否，取消")
-    print("   [e] 编辑后重新生成")
+    # 6. 询问确认（支持非交互模式）
+    auto_confirm = os.getenv('AUTO_CONFIRM', '').lower() == 'true'
 
-    choice = input("\n请选择 [y/n/e]: ").strip().lower()
+    if auto_confirm:
+        # 非交互模式：自动发布
+        print(f"\n✅ 非交互模式：自动发布简报")
+        choice = 'y'
+    else:
+        # 交互模式：询问用户
+        print(f"\n❓ 是否确认发布到正式目录? ({HISTORY_DIR}/{TODAY}.md)")
+        print("   [y] 是，发布")
+        print("   [n] 否，取消")
+        print("   [e] 编辑后重新生成")
+        choice = input("\n请选择 [y/n/e]: ").strip().lower()
 
     if choice == 'y':
         # 发布到正式目录

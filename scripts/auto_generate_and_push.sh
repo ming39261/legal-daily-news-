@@ -26,9 +26,9 @@ if [ -f "output/archive/$TODAY.md" ]; then
     exit 0
 fi
 
-# 2. 生成简报（带去重）
+# 2. 生成简报（带去重，非交互模式）
 echo "🤖 正在生成简报内容..." | tee -a "$LOG_FILE"
-python3 scripts/generate_with_dedup.py >> "$LOG_FILE" 2>&1
+AUTO_CONFIRM=true python3 scripts/generate_with_dedup.py >> "$LOG_FILE" 2>&1
 
 if [ $? -ne 0 ]; then
     echo "❌ 简报生成失败" | tee -a "$LOG_FILE"

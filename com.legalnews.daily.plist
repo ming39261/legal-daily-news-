@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/apple/legal-daily-news-skill/scripts/fully_auto.sh</string>
+        <string>/Users/apple/legal-daily-news-skill/scripts/auto_generate_and_push.sh</string>
     </array>
 
     <key>StartCalendarInterval</key>
