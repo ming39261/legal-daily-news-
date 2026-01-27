@@ -447,21 +447,23 @@ def md_to_purple_html(md_file, date_str, display_date):
                         data['link'] = line.split('- **链接**:')[1].strip()
                     elif '- **生效时间**:' in line:
                         data['effective'] = line.split('- **生效时间**:')[1].strip()
-                    elif line.startswith('**摘要**:') or line.startswith('**摘要**：'):
-                        in_summary = True
-                        continue
-                    elif line.startswith('**实务影响**:') or line.startswith('**实务影响**：'):
-                        in_impact = True
+                    elif '- **摘要**:' in line or '- **摘要**：' in line:
+                        # 摘要内容在同一行，提取冒号后面的内容
+                        summary_content = line.split(':', 1)[1].strip() if ':' in line else ''
+                        if summary_content:
+                            summary_lines.append(summary_content)
                         in_summary = False
-                        continue
+                        in_impact = False
+                    elif '- **实务影响**:' in line or '- **实务影响**：' in line:
+                        # 实务影响内容在同一行，提取冒号后面的内容
+                        impact_content = line.split(':', 1)[1].strip() if ':' in line else ''
+                        if impact_content:
+                            impact_lines.append(impact_content)
+                        in_summary = False
+                        in_impact = False
                     elif line.startswith('---') or line.startswith('**核心要点**'):
                         in_summary = False
                         in_impact = False
-
-                    if in_summary and not line.startswith('**'):
-                        summary_lines.append(line)
-                    elif in_impact and not line.startswith('**'):
-                        impact_lines.append(line)
 
                 if summary_lines:
                     data['summary'] = ' '.join(summary_lines).strip()
