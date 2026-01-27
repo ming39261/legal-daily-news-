@@ -11,12 +11,17 @@ import sys
 import json
 import glob
 import re
+import subprocess
 from datetime import datetime, timedelta
 from difflib import SequenceMatcher
 
 # 配置
 HISTORY_DIR = "output/archive"
 PREVIEW_DIR = "preview"
+
+# 添加脚本目录到路径
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, SCRIPT_DIR)
 
 # 支持通过环境变量或命令行参数指定日期
 date_override = os.getenv('TODAY')
@@ -86,8 +91,46 @@ def check_content_dedup(new_content, history_briefings):
     return issues
 
 def fetch_fallback_news():
-    """获取备选法律新闻（当检测到重复时使用）"""
-    # 这里可以调用真实的新闻API，暂时使用备用模板
+    """获取真实法律新闻，优先爬取而非使用模板"""
+
+    print("📡 API调用失败，尝试爬取真实法律新闻...")
+
+    # 尝试调用fetch_real_news.py爬取真实新闻
+    try:
+        fetch_script = os.path.join(SCRIPT_DIR, 'fetch_real_news.py')
+
+        if os.path.exists(fetch_script):
+            # 使用subprocess运行fetch_real_news.py
+            result = subprocess.run(
+                [sys.executable, fetch_script],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                cwd=SCRIPT_DIR
+            )
+
+            # 检查是否成功生成了Markdown文件
+            output_file = f"output/archive/{TODAY}.md"
+            if os.path.exists(output_file):
+                print(f"✅ 成功爬取真实新闻并生成: {output_file}")
+
+                # 读取生成的Markdown并返回None（表示直接使用生成的文件）
+                with open(output_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                # 返回特殊标记，表示已有完整的Markdown文件
+                return {'use_generated_file': True, 'content': content}
+
+            # 如果失败，继续下面的模板逻辑
+            print(f"⚠️  爬取脚本执行完毕，但未生成文件")
+        else:
+            print(f"⚠️  爬取脚本不存在: {fetch_script}")
+
+    except Exception as e:
+        print(f"⚠️  调用爬取脚本失败: {e}")
+
+    # 降级到简化模板（仅作为最后手段）
+    print("⚠️  使用简化模板内容（建议检查网络连接）")
     fallback_news = [
         {
             'source': '司法部',
@@ -317,7 +360,16 @@ def generate_with_template(history_briefings):
     """使用模板生成简报（包含去重逻辑）"""
 
     # 使用备选新闻
-    fallback_news = fetch_fallback_news()
+    fallback_result = fetch_fallback_news()
+
+    # 检查是否是fetch_real_news.py生成的内容
+    if isinstance(fallback_result, dict) and fallback_result.get('use_generated_file'):
+        # 直接使用爬取的真实新闻内容
+        print("✅ 使用爬取的真实法律新闻")
+        return fallback_result['content']
+
+    # 否则使用模板新闻
+    fallback_news = fallback_result
     return build_briefing_content(fallback_news)
 
 def build_briefing_content(news_items):
